@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Навчальний марафон — прогрес</title>
+<style>
+  :root{
+    --bg:#0f1419; --panel:#171d26; --panel-2:#1e2733; --line:#2a3543;
+    --text:#e7edf3; --muted:#93a1b0; --faint:#5c6b7a;
+    --eng:#4cc9f0;          /* English */
+    --prog:#b388ff;         /* Programming */
+    --accent:#34d399;       /* good / on-time */
+    --warn:#fbbf24;
+    --floor:#475569;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:radial-gradient(1200px 600px at 70% -10%, #182230 0%, var(--bg) 55%);
+    color:var(--text);
+    font-family:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5; padding:32px 20px 64px; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1060px;margin:0 auto;}
+  header{margin-bottom:28px;}
+  .eyebrow{color:var(--accent);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:12px;}
+  h1{margin:6px 0 4px;font-size:30px;font-weight:700;letter-spacing:-.02em;}
+  .sub{color:var(--muted);font-size:15px;}
+
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:24px 0 30px;}
+  .card{background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--line);
+    border-radius:16px;padding:18px 18px 16px;position:relative;overflow:hidden;}
+  .card .k{color:var(--muted);font-size:12.5px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;}
+  .card .v{font-size:26px;font-weight:700;margin-top:8px;letter-spacing:-.01em;}
+  .card .v small{font-size:14px;color:var(--muted);font-weight:600;}
+  .card .note{color:var(--faint);font-size:12px;margin-top:4px;}
+  .card .spark{position:absolute;right:14px;top:16px;font-size:20px;opacity:.5;}
+  .cards-avg{grid-template-columns:repeat(2,1fr);margin:-8px 0 30px;}
+  .card .mini{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;}
+  .card .mini .w{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 6px 8px;text-align:center;}
+  .card .mini .w span{display:block;color:var(--faint);font-size:11px;font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:.03em;}
+  .card .mini .w b{font-size:15px;font-weight:700;}
+
+  .goals{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:24px 0 30px;}
+  .goal{background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--line);
+    border-radius:16px;padding:18px 18px 16px;}
+  .goal .gh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+  .goal .gt{color:var(--muted);font-size:12.5px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;}
+  .goal .gp{font-size:26px;font-weight:700;letter-spacing:-.01em;}
+  .goal .track{height:14px;border-radius:999px;background:var(--panel);border:1px solid var(--line);
+    overflow:hidden;margin:13px 0 11px;}
+  .goal .fill{height:100%;border-radius:999px;transition:width .6s ease;}
+  .goal .meta{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--faint);gap:10px;}
+  .goal .eta{color:var(--text);font-weight:600;}
+  @media(max-width:720px){.goals{grid-template-columns:1fr;}}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px 22px 12px;margin-bottom:24px;}
+  .panel h2{font-size:17px;margin:0 0 2px;font-weight:700;}
+  .panel .desc{color:var(--muted);font-size:13px;margin:0 0 14px;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--muted);margin:0 0 8px;}
+  .legend span{display:inline-flex;align-items:center;gap:7px;}
+  .dot{width:11px;height:11px;border-radius:3px;display:inline-block;}
+  .dot.eng{background:var(--eng);} .dot.prog{background:var(--prog);}
+  .dot.line{width:16px;height:0;border-top:2px dashed var(--floor);border-radius:0;}
+  .dot.ot{background:var(--accent);border-radius:50%;}
+
+  svg{width:100%;height:auto;display:block;overflow:visible;}
+  .grid line{stroke:var(--line);stroke-width:1;}
+  .axis text{fill:var(--muted);font-size:11px;}
+  .bar{transition:opacity .15s;cursor:default;}
+  .bar:hover{opacity:.82;}
+  .barlabel{fill:var(--text);font-size:11px;font-weight:600;text-anchor:middle;}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px;}
+  th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line);}
+  th:first-child,td:first-child{text-align:left;}
+  thead th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.03em;}
+  tbody tr:hover{background:var(--panel-2);}
+  td.eng{color:var(--eng);} td.prog{color:var(--prog);}
+  .pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;}
+  .pill.yes{background:rgba(52,211,153,.14);color:var(--accent);}
+  .pill.no{background:rgba(148,163,184,.14);color:var(--muted);}
+  tr.tot td{font-weight:700;border-top:2px solid var(--line);}
+
+  .tip{position:fixed;pointer-events:none;background:#0b0f14;border:1px solid var(--line);
+    border-radius:10px;padding:8px 11px;font-size:12.5px;color:var(--text);opacity:0;
+    transition:opacity .1s;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:10;white-space:nowrap;}
+  .tip b{font-weight:700;}
+  footer{color:var(--faint);font-size:12px;text-align:center;margin-top:30px;}
+  @media(max-width:720px){.cards{grid-template-columns:repeat(2,1fr);}h1{font-size:24px;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Фаза 2 — Build</div>
+    <h1>Навчальний марафон · прогрес</h1>
+    <div class="sub" id="subline"></div>
+  </header>
+
+  <div class="goals" id="goals"></div>
+
+  <div class="cards" id="cards"></div>
+  <div class="cards cards-avg" id="cardsAvg"></div>
+
+  <div class="panel">
+    <h2>Години щодня — англійська + програмування</h2>
+    <p class="desc">Кожен стовпчик = один день. Пунктир = нижня межа Фази 1 (1 год 30 хв). Зелена крапка = старт вчасно (за столом ≤ 11:00).</p>
+    <div class="legend">
+      <span><i class="dot eng"></i>Англійська</span>
+      <span><i class="dot prog"></i>Програмування</span>
+      <span><i class="dot line"></i>Межа Фази 1</span>
+      <span><i class="dot ot"></i>Старт вчасно</span>
+    </div>
+    <svg id="barChart" viewBox="0 0 1000 360" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Стовпчикова діаграма годин на день"></svg>
+  </div>
+
+  <div class="panel">
+    <h2>Години за день · за предметом</h2>
+    <p class="desc">Окремо англійська та програмування — скільки годин щодня. Видно баланс між предметами.</p>
+    <div class="legend">
+      <span><i class="dot eng"></i>Англійська</span>
+      <span><i class="dot prog"></i>Програмування</span>
+    </div>
+    <svg id="subjectChart" viewBox="0 0 1000 320" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Графік накопичених годин за предметом"></svg>
+  </div>
+
+  <div class="panel">
+    <h2>Накопичені години</h2>
+    <p class="desc">Сумарний час від старту марафону. Лінія, що зростає, — це і є прогрес (Amabile & Kramer, Progress Principle).</p>
+    <svg id="lineChart" viewBox="0 0 1000 320" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Графік накопичених годин"></svg>
+  </div>
+
+  <div class="panel">
+    <h2>Середнє та медіана за день</h2>
+    <p class="desc">Дзеркало прогресу, не квота. Середнє тягнуть великі/малі дні; <b>медіана — твій типовий день</b>. «Останні 4» ловлять свіжий тренд швидше.</p>
+    <table id="statsTable"></table>
+  </div>
+
+  <div class="panel">
+    <h2>Журнал по днях</h2>
+    <table id="dayTable"></table>
+  </div>
+
+  <footer>Дані: progress/hours-log.md · оновлено 2026-06-28 (День 20)</footer>
+</div>
+
+<div class="tip" id="tip"></div>
+
+<script>
+/* ---- DATA (mirror of html/data.json; embedded so the page works on a plain double-click) ---- */
+const DATA = [
+  { day:1,  date:"2026-06-09", eng:75,  prog:145, onTime:false },
+  { day:2,  date:"2026-06-10", eng:60,  prog:140, onTime:true  },
+  { day:3,  date:"2026-06-11", eng:120, prog:80,  onTime:true  },
+  { day:4,  date:"2026-06-12", eng:65,  prog:75,  onTime:false },
+  { day:5,  date:"2026-06-13", eng:75,  prog:75,  onTime:false },
+  { day:6,  date:"2026-06-14", eng:70,  prog:75,  onTime:false },
+  { day:7,  date:"2026-06-15", eng:50,  prog:50,  onTime:false },
+  { day:8,  date:"2026-06-16", eng:120, prog:70,  onTime:true  },
+  { day:9,  date:"2026-06-17", eng:140, prog:80,  onTime:true  },
+  { day:10, date:"2026-06-18", eng:65,  prog:60,  onTime:true  },
+  { day:11, date:"2026-06-19", eng:99,  prog:100, onTime:true  },
+  { day:12, date:"2026-06-20", eng:120, prog:160, onTime:true  },
+  { day:13, date:"2026-06-21", eng:125, prog:70,  onTime:true  },
+  { day:14, date:"2026-06-22", eng:110, prog:100, onTime:true  },
+  { day:15, date:"2026-06-23", eng:120, prog:130, onTime:true  },
+  { day:16, date:"2026-06-24", eng:120, prog:120, onTime:true  },
+  { day:17, date:"2026-06-25", eng:100, prog:100, onTime:true  },
+  { day:18, date:"2026-06-26", eng:100, prog:130, onTime:true  },
+  { day:19, date:"2026-06-27", eng:90,  prog:160, onTime:true  },
+  { day:20, date:"2026-06-28", eng:80,  prog:100, onTime:true  },
+  { day:21, date:"2026-06-29", eng:65,  prog:130, onTime:true  },
+];
+DATA.forEach(d => d.total = d.eng + d.prog);
+
+/* ---- helpers ---- */
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs={}, parent){ const n=document.createElementNS(SVGNS,tag);
+  for(const k in attrs) n.setAttribute(k, attrs[k]); if(parent) parent.appendChild(n); return n; }
+function fmt(min){ const h=Math.floor(min/60), m=Math.round(min%60);
+  if(h && m) return h+" год "+m+" хв"; if(h) return h+" год"; return m+" хв"; }
+function fmtShort(min){ const h=Math.floor(min/60), m=Math.round(min%60);
+  return h+":"+String(m).padStart(2,"0"); }
+function avg(a){ return a.reduce((s,x)=>s+x,0)/a.length; }
+function median(a){ const s=[...a].sort((x,y)=>x-y), n=s.length, m=n>>1;
+  return n%2 ? s[m] : (s[m-1]+s[m])/2; }
+
+const tip = document.getElementById("tip");
+function showTip(e, html){ tip.innerHTML=html; tip.style.opacity=1;
+  tip.style.left=(e.clientX+14)+"px"; tip.style.top=(e.clientY-10)+"px"; }
+function hideTip(){ tip.style.opacity=0; }
+
+/* ---- header + cards ---- */
+const totalMin = DATA.reduce((s,d)=>s+d.total,0);
+const engTotal = DATA.reduce((s,d)=>s+d.eng,0);
+const progTotal= DATA.reduce((s,d)=>s+d.prog,0);
+const nDays = DATA.length;
+// current on-time streak (from the end)
+let streak=0; for(let i=DATA.length-1;i>=0;i--){ if(DATA[i].onTime) streak++; else break; }
+
+document.getElementById("subline").textContent =
+  `День ${nDays} · мета: стабільний старт, мінімум 3 години · сон ≥ 8 год — захисна межа`;
+
+const cards = [
+  { k:"Усього годин", v:fmt(totalMin), note:`за ${nDays} днів · 30 год пройдено на День 11`, spark:"⏱️" },
+  { k:"Типовий день", v:fmt(median(DATA.map(d=>d.total).slice(-7))), note:`медіана · середнє ${fmt(avg(DATA.map(d=>d.total).slice(-7)))}`, spark:"📊" },
+  // { k:"Типовий день", v:fmt(median(DATA.map(d=>d.total))), note:`медіана · середнє ${fmt(avg(DATA.map(d=>d.total)))}`, spark:"📊" },
+  { k:"Старт вчасно поспіль", v:streak+" дн.", note:"за столом ≤ 11:00 (Дні 8–11)", spark:"🎯" },
+  { k:"Англ / Прог", v:`${fmtShort(engTotal)} <small>/</small> ${fmtShort(progTotal)}`, note:"баланс сумарного часу", spark:"⚖️" },
+];
+document.getElementById("cards").innerHTML = cards.map(c=>`
+  <div class="card"><div class="spark">${c.spark}</div>
+    <div class="k">${c.k}</div><div class="v">${c.v}</div><div class="note">${c.note}</div></div>`).join("");
+
+/* ---- goal progress + ETA (English 180h, Programming 100h) ---- */
+(function(){
+  const goals = [
+    { key:"eng",  title:"Англійська — мета 180 год", goal:180*60, have:engTotal,  color:"var(--eng)"  },
+    { key:"prog", title:"Програмування — мета 100 год", goal:100*60, have:progTotal, color:"var(--prog)" },
+  ];
+  const last4 = DATA.slice(-4);
+  const MON = ["січ.","лют.","бер.","квіт.","трав.","черв.","лип.","серп.","вер.","жовт.","лист.","груд."];
+  const baseDate = new Date(DATA[DATA.length-1].date + "T00:00:00");  // last logged day
+  const projDate = days => { const d=new Date(baseDate); d.setDate(d.getDate()+days);
+    return d.getDate()+" "+MON[d.getMonth()]+" "+d.getFullYear(); };
+  document.getElementById("goals").innerHTML = goals.map(g=>{
+    const pct = Math.min(100, g.have/g.goal*100);
+    const left = Math.max(0, g.goal - g.have);
+    const med4 = median(last4.map(d=>d[g.key]));   // median minutes/day over last 4 days
+    let eta;
+    if(left<=0) eta = "🎉 мету досягнуто";
+    else if(med4>0){ const dn=Math.ceil(left/med4); eta = `≈ ${dn} дн · ${projDate(dn)}`; }
+    else eta = "темп 0 — потрібен прогрес";
+    return `<div class="goal">
+      <div class="gh"><span class="gt">${g.title}</span><span class="gp" style="color:${g.color}">${pct.toFixed(1)}%</span></div>
+      <div class="track"><div class="fill" style="width:${pct}%;background:${g.color}"></div></div>
+      <div class="meta">
+        <span>${fmt(g.have)} / ${g.goal/60} год · лишилось ${fmt(left)}</span>
+        <span class="eta">${eta}</span>
+      </div>
+    </div>`;
+  }).join("");
+})();
+
+/* ---- per-subject average/median-per-day cards (windows: all / last 7 / last 4) ---- */
+(function(){
+  const wins = [
+    { label:"Усі", rows:DATA },
+    { label:"7 дн", rows:DATA.slice(-7) },
+    { label:"4 дн", rows:DATA.slice(-4) },
+  ];
+  const mini = (key,color,stat) => wins.map(w=>
+    `<div class="w"><span>${w.label}</span><b style="color:${color}">${fmt(stat(w.rows.map(d=>d[key])))}</b></div>`
+  ).join("");
+  const card = (spark,title,key,color,stat) =>
+    `<div class="card"><div class="spark">${spark}</div>
+      <div class="k">${title}</div><div class="mini">${mini(key,color,stat)}</div></div>`;
+  document.getElementById("cardsAvg").innerHTML =
+    card("🇬🇧","Англійська · середнє/день","eng","var(--eng)",avg) +
+    card("💻","Програмування · середнє/день","prog","var(--prog)",avg) +
+    card("🇬🇧","Англійська · медіана/день","eng","var(--eng)",median) +
+    card("💻","Програмування · медіана/день","prog","var(--prog)",median);
+})();
+
+/* ---- bar chart (stacked eng+prog per day) ---- */
+(function(){
+  const svg = document.getElementById("barChart");
+  const W=1000,H=360, pad={l:48,r:16,t:18,b:46};
+  const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
+  const maxV = Math.ceil(Math.max(...DATA.map(d=>d.total))/30)*30; // round to 30 min
+  const y = v => pad.t + ch - (v/maxV)*ch;
+  const FLOOR=90;
+  const FLOOR_PHASE_2=180;
+
+  // gridlines + y labels (every 60 min)
+  const g=el("g",{class:"grid"},svg);
+  for(let v=0; v<=maxV; v+=60){
+    el("line",{x1:pad.l,y1:y(v),x2:W-pad.r,y2:y(v)},g);
+    const t=el("text",{x:pad.l-8,y:y(v)+4,"text-anchor":"end",fill:"#93a1b0","font-size":11},svg);
+    t.textContent=(v/60)+" год";
+  }
+  // phase-1 floor line
+  el("line",{x1:pad.l,y1:y(FLOOR),x2:W-pad.r,y2:y(FLOOR),stroke:"#475569","stroke-width":1.5,"stroke-dasharray":"6 5"},svg);
+
+ // phase-2 floor line
+  el("line",{x1:pad.l,y1:y(FLOOR_PHASE_2),x2:W-pad.r,y2:y(FLOOR_PHASE_2),stroke:"#475569","stroke-width":1.5,"stroke-dasharray":"6 5"},svg);
+
+  const n=DATA.length, slot=cw/n, bw=Math.min(46, slot*0.56);
+  DATA.forEach((d,i)=>{
+    const cx=pad.l+slot*i+slot/2, x=cx-bw/2;
+    const yProg=y(d.prog), hProg=y(0)-y(d.prog);
+    const yTot=y(d.total), hEng=y(0)-y(d.eng);
+    // programming (bottom)
+    const r1=el("rect",{x,y:yProg,width:bw,height:hProg,rx:5,fill:"var(--prog)",class:"bar"},svg);
+    // english (top)
+    const r2=el("rect",{x,y:yTot,width:bw,height:hEng,rx:5,fill:"var(--eng)",class:"bar"},svg);
+    const tipHtml=`<b>День ${d.day}</b> · ${d.date}<br>Англ: ${fmt(d.eng)}<br>Прог: ${fmt(d.prog)}<br><b>Разом: ${fmt(d.total)}</b>`;
+    [r1,r2].forEach(r=>{ r.addEventListener("mousemove",e=>showTip(e,tipHtml)); r.addEventListener("mouseleave",hideTip); });
+    // total label
+    const lab=el("text",{x:cx,y:yTot-7,class:"barlabel"},svg); lab.textContent=fmtShort(d.total);
+    // x label (day) + on-time dot
+    const xl=el("text",{x:cx,y:H-pad.b+20,"text-anchor":"middle",fill:"#93a1b0","font-size":11},svg);
+    xl.textContent="Д"+d.day;
+    if(d.onTime) el("circle",{cx,cy:H-pad.b+30,r:3.4,fill:"var(--accent)"},svg);
+  });
+})();
+
+/* ---- daily hours line chart by subject (eng + prog) ---- */
+(function(){
+  const svg=document.getElementById("subjectChart");
+  const W=1000,H=320, pad={l:54,r:16,t:18,b:40};
+  const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
+  const pts=DATA.map(d=>({day:d.day,date:d.date,eng:d.eng,prog:d.prog}));
+  const maxV=Math.max(60, Math.ceil(Math.max(...DATA.map(d=>Math.max(d.eng,d.prog)))/30)*30);
+  const n=pts.length;
+  const x=i=> pad.l + (n===1?cw/2: cw*i/(n-1));
+  const y=v=> pad.t + ch - (v/maxV)*ch;
+
+  const g=el("g",{class:"grid"},svg);
+  for(let v=0; v<=maxV; v+=30){
+    el("line",{x1:pad.l,y1:y(v),x2:W-pad.r,y2:y(v)},g);
+    const t=el("text",{x:pad.l-8,y:y(v)+4,"text-anchor":"end",fill:"#93a1b0","font-size":11},svg);
+    t.textContent=fmt(v);
+  }
+
+  [["eng","var(--eng)","Англ"],["prog","var(--prog)","Прог"]].forEach(([key,color,label])=>{
+    const dLine=pts.map((p,i)=>(i?"L":"M")+x(i)+" "+y(p[key])).join(" ");
+    el("path",{d:dLine,fill:"none",stroke:color,"stroke-width":2.5,"stroke-linejoin":"round"},svg);
+    pts.forEach((p,i)=>{
+      const c=el("circle",{cx:x(i),cy:y(p[key]),r:4.5,fill:"#0f1419",stroke:color,"stroke-width":2.5,class:"bar"},svg);
+      const html=`<b>День ${p.day}</b> · ${p.date}<br>${label}: <b>${fmt(p[key])}</b>`;
+      c.addEventListener("mousemove",e=>showTip(e,html)); c.addEventListener("mouseleave",hideTip);
+    });
+  });
+
+  pts.forEach((p,i)=>{
+    const xl=el("text",{x:x(i),y:H-pad.b+22,"text-anchor":"middle",fill:"#93a1b0","font-size":11},svg);
+    xl.textContent="Д"+p.day;
+  });
+})();
+
+/* ---- cumulative line chart ---- */
+(function(){
+  const svg=document.getElementById("lineChart");
+  const W=1000,H=320, pad={l:54,r:16,t:18,b:40};
+  const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
+  let run=0; const pts=DATA.map(d=>{ run+=d.total; return {day:d.day,date:d.date,run}; });
+  const maxV=Math.ceil(run/120)*120;
+  const n=pts.length;
+  const x=i=> pad.l + (n===1?cw/2: cw*i/(n-1));
+  const y=v=> pad.t + ch - (v/maxV)*ch;
+
+  const g=el("g",{class:"grid"},svg);
+  for(let v=0; v<=maxV; v+=120){
+    el("line",{x1:pad.l,y1:y(v),x2:W-pad.r,y2:y(v)},g);
+    const t=el("text",{x:pad.l-8,y:y(v)+4,"text-anchor":"end",fill:"#93a1b0","font-size":11},svg);
+    t.textContent=(v/60)+" год";
+  }
+  // area + line
+  let dLine=pts.map((p,i)=>(i?"L":"M")+x(i)+" "+y(p.run)).join(" ");
+  const dArea=dLine+` L${x(n-1)} ${y(0)} L${x(0)} ${y(0)} Z`;
+  const grad=el("linearGradient",{id:"ag",x1:0,y1:0,x2:0,y2:1},svg);
+  el("stop",{offset:"0%","stop-color":"#34d399","stop-opacity":.32},grad);
+  el("stop",{offset:"100%","stop-color":"#34d399","stop-opacity":0},grad);
+  el("path",{d:dArea,fill:"url(#ag)"},svg);
+  el("path",{d:dLine,fill:"none",stroke:"#34d399","stroke-width":2.5,"stroke-linejoin":"round"},svg);
+
+  pts.forEach((p,i)=>{
+    const c=el("circle",{cx:x(i),cy:y(p.run),r:4.5,fill:"#0f1419",stroke:"#34d399","stroke-width":2.5,class:"bar"},svg);
+    const html=`<b>День ${p.day}</b> · ${p.date}<br>Накопичено: <b>${fmt(p.run)}</b>`;
+    c.addEventListener("mousemove",e=>showTip(e,html)); c.addEventListener("mouseleave",hideTip);
+    const xl=el("text",{x:x(i),y:H-pad.b+22,"text-anchor":"middle",fill:"#93a1b0","font-size":11},svg);
+    xl.textContent="Д"+p.day;
+  });
+})();
+
+/* ---- stats table (windows) ---- */
+(function(){
+  const windows=[
+    {label:"Усі ("+nDays+" дн)", rows:DATA},
+    {label:"Останні 7", rows:DATA.slice(-7)},
+    {label:"Останні 4", rows:DATA.slice(-4)},
+  ];
+  const head=`<thead><tr><th>Вікно</th>
+    <th>Англ. сер.</th><th>Англ. мед.</th>
+    <th>Прог. сер.</th><th>Прог. мед.</th>
+    <th>Разом сер.</th><th>Разом мед.</th></tr></thead>`;
+  const body="<tbody>"+windows.map(w=>{
+    const e=w.rows.map(d=>d.eng), p=w.rows.map(d=>d.prog), t=w.rows.map(d=>d.total);
+    return `<tr><td>${w.label}</td>
+      <td class="eng">${fmt(avg(e))}</td><td class="eng">${fmt(median(e))}</td>
+      <td class="prog">${fmt(avg(p))}</td><td class="prog">${fmt(median(p))}</td>
+      <td>${fmt(avg(t))}</td><td>${fmt(median(t))}</td></tr>`;
+  }).join("")+"</tbody>";
+  document.getElementById("statsTable").innerHTML=head+body;
+})();
+
+/* ---- day table ---- */
+(function(){
+  const head=`<thead><tr><th>День</th><th>Дата</th>
+    <th>Англ.</th><th>Прог.</th><th>Разом</th><th>Накопичено</th><th>Старт</th></tr></thead>`;
+  let run=0;
+  const body="<tbody>"+DATA.map(d=>{ run+=d.total;
+    return `<tr><td>${d.day}</td><td>${d.date}</td>
+      <td class="eng">${fmt(d.eng)}</td><td class="prog">${fmt(d.prog)}</td>
+      <td>${fmt(d.total)}</td><td>${fmt(run)}</td>
+      <td><span class="pill ${d.onTime?'yes':'no'}">${d.onTime?'вчасно':'пізно'}</span></td></tr>`;
+  }).join("")
+   + `<tr class="tot"><td colspan="2">Разом</td>
+      <td class="eng">${fmt(engTotal)}</td><td class="prog">${fmt(progTotal)}</td>
+      <td>${fmt(totalMin)}</td><td>${fmt(totalMin)}</td><td></td></tr></tbody>`;
+  document.getElementById("dayTable").innerHTML=head+body;
+})();
+</script>
+</body>
+</html>
