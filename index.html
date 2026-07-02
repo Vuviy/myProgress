@@ -180,6 +180,7 @@ DATA.forEach(d => d.total = d.eng + d.prog);
 
 /* ---- helpers ---- */
 const SVGNS = "http://www.w3.org/2000/svg";
+
 function el(tag, attrs={}, parent){ const n=document.createElementNS(SVGNS,tag);
   for(const k in attrs) n.setAttribute(k, attrs[k]); if(parent) parent.appendChild(n); return n; }
 function fmt(min){ const h=Math.floor(min/60), m=Math.round(min%60);
