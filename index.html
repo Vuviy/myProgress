@@ -60,6 +60,9 @@
   .panel .desc{color:var(--muted);font-size:13px;margin:0 0 14px;}
   .legend{display:flex;gap:18px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--muted);margin:0 0 8px;}
   .legend span{display:inline-flex;align-items:center;gap:7px;}
+  .legend .toggle{cursor:pointer;user-select:none;transition:opacity .15s;}
+  .legend .toggle:hover{color:var(--text);}
+  .legend .toggle.off{opacity:.35;text-decoration:line-through;}
   .dot{width:11px;height:11px;border-radius:3px;display:inline-block;}
   .dot.eng{background:var(--eng);} .dot.prog{background:var(--prog);}
   .dot.line{width:16px;height:0;border-top:2px dashed var(--floor);border-radius:0;}
@@ -106,10 +109,10 @@
 
   <div class="panel">
     <h2>Години щодня — англійська + програмування</h2>
-    <p class="desc">Кожен стовпчик = один день. Пунктир = нижня межа Фази 1 (1 год 30 хв). Зелена крапка = старт вчасно (за столом ≤ 11:00).</p>
+    <p class="desc">Кожен стовпчик = один день. Пунктир = нижня межа Фази 1 (1 год 30 хв). Зелена крапка = старт вчасно (за столом ≤ 11:00). Клік по предмету в легенді ховає/повертає його.</p>
     <div class="legend">
-      <span><i class="dot eng"></i>Англійська</span>
-      <span><i class="dot prog"></i>Програмування</span>
+      <span class="toggle" data-key="eng"><i class="dot eng"></i>Англійська</span>
+      <span class="toggle" data-key="prog"><i class="dot prog"></i>Програмування</span>
       <span><i class="dot line"></i>Межа Фази 1</span>
       <span><i class="dot ot"></i>Старт вчасно</span>
     </div>
@@ -118,10 +121,10 @@
 
   <div class="panel">
     <h2>Години за день · за предметом</h2>
-    <p class="desc">Окремо англійська та програмування — скільки годин щодня. Видно баланс між предметами.</p>
+    <p class="desc">Окремо англійська та програмування — скільки годин щодня. Видно баланс між предметами. Клік по предмету в легенді ховає/повертає його.</p>
     <div class="legend">
-      <span><i class="dot eng"></i>Англійська</span>
-      <span><i class="dot prog"></i>Програмування</span>
+      <span class="toggle" data-key="eng"><i class="dot eng"></i>Англійська</span>
+      <span class="toggle" data-key="prog"><i class="dot prog"></i>Програмування</span>
     </div>
     <svg id="subjectChart" viewBox="0 0 1000 320" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Графік накопичених годин за предметом"></svg>
   </div>
@@ -268,12 +271,19 @@ document.getElementById("cards").innerHTML = cards.map(c=>`
     card("💻","Програмування · медіана/день","prog","var(--prog)",median);
 })();
 
-/* ---- bar chart (stacked eng+prog per day) ---- */
-(function(){
+/* ---- subject visibility (legend toggles hide/show a subject on both charts) ---- */
+const visible = { eng:true, prog:true };
+const SUBJ_NAME = { eng:"Англ", prog:"Прог" };
+
+/* ---- bar chart (stacked per day, visible subjects only) ---- */
+function drawBarChart(){
   const svg = document.getElementById("barChart");
+  svg.innerHTML = "";
+  const keys = ["prog","eng"].filter(k=>visible[k]);   // stacking order: prog bottom, eng top
   const W=1000,H=360, pad={l:48,r:16,t:18,b:46};
   const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
-  const maxV = Math.ceil(Math.max(...DATA.map(d=>d.total))/30)*30; // round to 30 min
+  const visTotal = d => keys.reduce((s,k)=>s+d[k],0);
+  const maxV = keys.length ? Math.ceil(Math.max(...DATA.map(visTotal))/30)*30 : 60; // round to 30 min
   const y = v => pad.t + ch - (v/maxV)*ch;
   const FLOOR=90;
   const FLOOR_PHASE_2=180;
@@ -285,39 +295,47 @@ document.getElementById("cards").innerHTML = cards.map(c=>`
     const t=el("text",{x:pad.l-8,y:y(v)+4,"text-anchor":"end",fill:"#93a1b0","font-size":11},svg);
     t.textContent=(v/60)+" год";
   }
-  // phase-1 floor line
-  el("line",{x1:pad.l,y1:y(FLOOR),x2:W-pad.r,y2:y(FLOOR),stroke:"#475569","stroke-width":1.5,"stroke-dasharray":"6 5"},svg);
-
- // phase-2 floor line
-  el("line",{x1:pad.l,y1:y(FLOOR_PHASE_2),x2:W-pad.r,y2:y(FLOOR_PHASE_2),stroke:"#475569","stroke-width":1.5,"stroke-dasharray":"6 5"},svg);
+  // phase floor lines (only when they fit the current scale)
+  [FLOOR, FLOOR_PHASE_2].forEach(f=>{
+    if(f<=maxV) el("line",{x1:pad.l,y1:y(f),x2:W-pad.r,y2:y(f),stroke:"#475569","stroke-width":1.5,"stroke-dasharray":"6 5"},svg);
+  });
 
   const n=DATA.length, slot=cw/n, bw=Math.min(46, slot*0.56);
   DATA.forEach((d,i)=>{
     const cx=pad.l+slot*i+slot/2, x=cx-bw/2;
-    const yProg=y(d.prog), hProg=y(0)-y(d.prog);
-    const yTot=y(d.total), hEng=y(0)-y(d.eng);
-    // programming (bottom)
-    const r1=el("rect",{x,y:yProg,width:bw,height:hProg,rx:5,fill:"var(--prog)",class:"bar"},svg);
-    // english (top)
-    const r2=el("rect",{x,y:yTot,width:bw,height:hEng,rx:5,fill:"var(--eng)",class:"bar"},svg);
-    const tipHtml=`<b>День ${d.day}</b> · ${d.date}<br>Англ: ${fmt(d.eng)}<br>Прог: ${fmt(d.prog)}<br><b>Разом: ${fmt(d.total)}</b>`;
-    [r1,r2].forEach(r=>{ r.addEventListener("mousemove",e=>showTip(e,tipHtml)); r.addEventListener("mouseleave",hideTip); });
-    // total label
-    const lab=el("text",{x:cx,y:yTot-7,class:"barlabel"},svg); lab.textContent=fmtShort(d.total);
+    const tot=visTotal(d);
+    const tipHtml=`<b>День ${d.day}</b> · ${d.date}`
+      + ["eng","prog"].filter(k=>visible[k]).map(k=>`<br>${SUBJ_NAME[k]}: ${fmt(d[k])}`).join("")
+      + (keys.length>1 ? `<br><b>Разом: ${fmt(tot)}</b>` : "");
+    let acc=0;
+    keys.forEach(k=>{
+      const r=el("rect",{x,y:y(acc+d[k]),width:bw,height:y(acc)-y(acc+d[k]),rx:5,fill:`var(--${k})`,class:"bar"},svg);
+      r.addEventListener("mousemove",e=>showTip(e,tipHtml));
+      r.addEventListener("mouseleave",hideTip);
+      acc+=d[k];
+    });
+    // total label (of visible subjects)
+    if(keys.length){
+      const lab=el("text",{x:cx,y:y(tot)-7,class:"barlabel"},svg); lab.textContent=fmtShort(tot);
+    }
     // x label (day) + on-time dot
     const xl=el("text",{x:cx,y:H-pad.b+20,"text-anchor":"middle",fill:"#93a1b0","font-size":11},svg);
     xl.textContent="Д"+d.day;
     if(d.onTime) el("circle",{cx,cy:H-pad.b+30,r:3.4,fill:"var(--accent)"},svg);
   });
-})();
+}
 
-/* ---- daily hours line chart by subject (eng + prog) ---- */
-(function(){
+/* ---- daily hours line chart by subject (visible subjects only) ---- */
+function drawSubjectChart(){
   const svg=document.getElementById("subjectChart");
+  svg.innerHTML="";
+  const keys=["eng","prog"].filter(k=>visible[k]);
   const W=1000,H=320, pad={l:54,r:16,t:18,b:40};
   const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
   const pts=DATA.map(d=>({day:d.day,date:d.date,eng:d.eng,prog:d.prog}));
-  const maxV=Math.max(60, Math.ceil(Math.max(...DATA.map(d=>Math.max(d.eng,d.prog)))/30)*30);
+  const maxV=keys.length
+    ? Math.max(60, Math.ceil(Math.max(...DATA.map(d=>Math.max(...keys.map(k=>d[k]))))/30)*30)
+    : 60;
   const n=pts.length;
   const x=i=> pad.l + (n===1?cw/2: cw*i/(n-1));
   const y=v=> pad.t + ch - (v/maxV)*ch;
@@ -329,7 +347,8 @@ document.getElementById("cards").innerHTML = cards.map(c=>`
     t.textContent=fmt(v);
   }
 
-  [["eng","var(--eng)","Англ"],["prog","var(--prog)","Прог"]].forEach(([key,color,label])=>{
+  keys.forEach(key=>{
+    const color=`var(--${key})`, label=SUBJ_NAME[key];
     const dLine=pts.map((p,i)=>(i?"L":"M")+x(i)+" "+y(p[key])).join(" ");
     el("path",{d:dLine,fill:"none",stroke:color,"stroke-width":2.5,"stroke-linejoin":"round"},svg);
     pts.forEach((p,i)=>{
@@ -343,7 +362,22 @@ document.getElementById("cards").innerHTML = cards.map(c=>`
     const xl=el("text",{x:x(i),y:H-pad.b+22,"text-anchor":"middle",fill:"#93a1b0","font-size":11},svg);
     xl.textContent="Д"+p.day;
   });
-})();
+}
+
+drawBarChart();
+drawSubjectChart();
+
+/* legend click → toggle subject on both charts (legends stay in sync) */
+document.querySelectorAll(".legend .toggle").forEach(elm=>{
+  elm.addEventListener("click",()=>{
+    const k=elm.dataset.key;
+    visible[k]=!visible[k];
+    document.querySelectorAll(`.legend .toggle[data-key="${k}"]`)
+      .forEach(t=>t.classList.toggle("off",!visible[k]));
+    drawBarChart();
+    drawSubjectChart();
+  });
+});
 
 /* ---- cumulative line chart ---- */
 (function(){
