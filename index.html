@@ -146,7 +146,7 @@
     <table id="dayTable"></table>
   </div>
 
-  <footer>Дані: progress/hours-log.md · оновлено 2026-07-04 (День 26)</footer>
+  <footer>Дані: progress/hours-log.md · оновлено 2026-07-05 (День 27)</footer>
 </div>
 
 <div class="tip" id="tip"></div>
@@ -180,6 +180,7 @@ const DATA = [
   { day:24, date:"2026-07-02", eng:100, prog:110, onTime:true  },
   { day:25, date:"2026-07-03", eng:60,  prog:0,   onTime:true  },
   { day:26, date:"2026-07-04", eng:150, prog:90,  onTime:true  },
+  { day:27, date:"2026-07-05", eng:140, prog:160, onTime:true  },
 ];
 DATA.forEach(d => d.total = d.eng + d.prog);
 
@@ -208,9 +209,11 @@ const progTotal= DATA.reduce((s,d)=>s+d.prog,0);
 const nDays = DATA.length;
 // current on-time streak (from the end)
 let streak=0; for(let i=DATA.length-1;i>=0;i--){ if(DATA[i].onTime) streak++; else break; }
+const GOLD_MIN = 300;
+const goldDays = DATA.filter(d=>d.total>=GOLD_MIN).length;
 
 document.getElementById("subline").textContent =
-  `День ${nDays} · мета: стабільний старт, мінімум 3 години · сон ≥ 8 год — захисна межа`;
+  `День ${nDays} · мета: стабільний старт, мінімум 3,5 год · золотий день = 5+ год · сон ≥ 8 год — захисна межа`;
 
 const cards = [
   { k:"Усього годин", v:fmt(totalMin), note:`за ${nDays} днів · 30 год пройдено на День 11`, spark:"⏱️" },
@@ -218,6 +221,7 @@ const cards = [
   // { k:"Типовий день", v:fmt(median(DATA.map(d=>d.total))), note:`медіана · середнє ${fmt(avg(DATA.map(d=>d.total)))}`, spark:"📊" },
   { k:"Старт вчасно поспіль", v:streak+" дн.", note:"за столом ≤ 11:00 (Дні 8–11)", spark:"🎯" },
   { k:"Англ / Прог", v:`${fmtShort(engTotal)} <small>/</small> ${fmtShort(progTotal)}`, note:"баланс сумарного часу", spark:"⚖️" },
+  { k:"Хароші дні", v:goldDays+"", note:"днів із 5+ год · орієнтир, не норма", spark:"⭐" },
 ];
 document.getElementById("cards").innerHTML = cards.map(c=>`
   <div class="card"><div class="spark">${c.spark}</div>
@@ -288,7 +292,8 @@ function drawBarChart(){
   const maxV = keys.length ? Math.ceil(Math.max(...DATA.map(visTotal))/30)*30 : 60; // round to 30 min
   const y = v => pad.t + ch - (v/maxV)*ch;
   const FLOOR=90;
-  const FLOOR_PHASE_2=180;
+  const FLOOR_PHASE_2=210;   // 3.5h floor (from 2026-07-06)
+  const GOLD=300;           // 5h gold-day guideline
 
   // gridlines + y labels (every 60 min)
   const g=el("g",{class:"grid"},svg);
@@ -301,6 +306,7 @@ function drawBarChart(){
   [FLOOR, FLOOR_PHASE_2].forEach(f=>{
     if(f<=maxV) el("line",{x1:pad.l,y1:y(f),x2:W-pad.r,y2:y(f),stroke:"#475569","stroke-width":1.5,"stroke-dasharray":"6 5"},svg);
   });
+  if(GOLD<=maxV) el("line",{x1:pad.l,y1:y(GOLD),x2:W-pad.r,y2:y(GOLD),stroke:"#d4a017","stroke-width":1.5,"stroke-dasharray":"2 6",opacity:.8},svg);
 
   const n=DATA.length, slot=cw/n, bw=Math.min(46, slot*0.56);
   DATA.forEach((d,i)=>{
@@ -318,7 +324,10 @@ function drawBarChart(){
     });
     // total label (of visible subjects)
     if(keys.length){
-      const lab=el("text",{x:cx,y:y(tot)-7,class:"barlabel"},svg); lab.textContent=fmtShort(tot);
+      const gold = d.total>=GOLD;
+      const lab=el("text",{x:cx,y:y(tot)-7,class:"barlabel"},svg);
+      lab.textContent=(gold?"⭐":"")+fmtShort(tot);
+      if(gold) lab.setAttribute("fill","#d4a017");
     }
     // x label (day) + on-time dot
     const xl=el("text",{x:cx,y:H-pad.b+20,"text-anchor":"middle",fill:"#93a1b0","font-size":11},svg);
