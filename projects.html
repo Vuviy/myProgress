@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Мої проєкти — друга сцена</title>
+<style>
+  :root{
+    --bg:#0f1419; --panel:#171d26; --panel-2:#1e2733; --line:#2a3543;
+    --text:#e7edf3; --muted:#93a1b0; --faint:#5c6b7a;
+    --game:#c084fc;         /* гра */
+    --saas:#4dd4ac;         /* SaaS */
+    --arduino:#ffa94d;      /* інкубатор */
+    --accent:#34d399; --gold:#d4a017;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:radial-gradient(1200px 600px at 70% -10%, #182230 0%, var(--bg) 55%);
+    color:var(--text);
+    font-family:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5; padding:32px 20px 64px; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1060px;margin:0 auto;}
+  header{margin-bottom:28px;}
+  .eyebrow{color:var(--accent);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:12px;}
+  h1{margin:6px 0 4px;font-size:30px;font-weight:700;letter-spacing:-.02em;}
+  .sub{color:var(--muted);font-size:15px;}
+  .xlink{color:var(--accent);font-size:13px;font-weight:600;text-decoration:none;}
+  .xlink:hover{text-decoration:underline;}
+
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:24px 0 14px;}
+  .cards.proj{grid-template-columns:repeat(3,1fr);margin:0 0 30px;}
+  .card{background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--line);
+    border-radius:16px;padding:18px 18px 16px;position:relative;overflow:hidden;}
+  .card .k{color:var(--muted);font-size:12.5px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;}
+  .card .v{font-size:26px;font-weight:700;margin-top:8px;letter-spacing:-.01em;}
+  .card .v small{font-size:14px;color:var(--muted);font-weight:600;}
+  .card .note{color:var(--faint);font-size:12px;margin-top:4px;}
+  .card .spark{position:absolute;right:14px;top:16px;font-size:20px;opacity:.5;}
+  .card.pj{border-top:3px solid var(--line);}
+  .card .row{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;}
+  .card .row div b{font-size:19px;font-weight:700;display:block;}
+  .card .row div span{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.03em;}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;margin-bottom:24px;}
+  .panel h2{font-size:17px;margin:0 0 2px;font-weight:700;}
+  .panel .desc{color:var(--muted);font-size:13px;margin:0 0 16px;}
+
+  .week{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;}
+  .day{background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:12px 10px 10px;min-height:130px;
+    display:flex;flex-direction:column;gap:8px;}
+  .day.today{border-color:var(--accent);}
+  .day .dh{display:flex;justify-content:space-between;align-items:baseline;}
+  .day .dn{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}
+  .day.today .dn{color:var(--accent);}
+  .day .dd{font-size:11px;color:var(--faint);}
+  .chip{display:flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:7px 8px;font-size:12.5px;font-weight:600;}
+  .chip .dot{width:10px;height:10px;border-radius:3px;flex:none;}
+  .chip .st{margin-left:auto;font-size:14px;}
+  .chip.free{color:var(--faint);font-weight:500;border-style:dashed;}
+  .rest{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;}
+  .rest span{font-size:13px;background:var(--panel);border:1px solid var(--line);border-radius:8px;
+    padding:2px 7px;opacity:.45;}
+  .rest span.on{opacity:1;border-color:#3a4a5d;}
+  @media(max-width:860px){.week{grid-template-columns:repeat(4,1fr);}.cards.proj{grid-template-columns:1fr;}}
+  @media(max-width:560px){.week{grid-template-columns:repeat(2,1fr);}.cards{grid-template-columns:repeat(2,1fr);}h1{font-size:24px;}}
+
+  .goals{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  @media(max-width:860px){.goals{grid-template-columns:1fr;}}
+  .goal{background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--line);
+    border-radius:16px;padding:16px;border-top:3px solid var(--line);}
+  .goal .gh{display:flex;align-items:center;gap:9px;font-weight:700;font-size:15px;}
+  .goal .gh .dot{width:11px;height:11px;border-radius:3px;}
+  .goal .mile{color:var(--muted);font-size:13px;margin:9px 0 6px;min-height:40px;}
+  .goal .bounty{font-size:12.5px;color:var(--gold);font-weight:700;}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px;}
+  th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line);}
+  th:first-child,td:first-child{text-align:left;}
+  thead th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.03em;}
+  tbody tr:hover{background:var(--panel-2);}
+  td.now{color:var(--accent);font-weight:700;}
+
+  ul.rules{margin:0;padding-left:20px;color:var(--muted);font-size:13.5px;}
+  ul.rules li{margin-bottom:6px;}
+  ul.rules b{color:var(--text);}
+  footer{color:var(--faint);font-size:12px;text-align:center;margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Друга сцена · EXP-006</div>
+    <h1>Мої проєкти</h1>
+    <div class="sub">Гра · SaaS · Інкубатор — 30 хвилин о 17:00, після закритої планки навчання.
+      &nbsp;<a class="xlink" href="index.html">← навчальний дашборд</a></div>
+  </header>
+
+  <div class="cards" id="cards"></div>
+  <div class="cards proj" id="cardsProj"></div>
+
+  <div class="panel">
+    <h2>Поточний тиждень</h2>
+    <p class="desc">Слот = 17:00, 30 хв, планка — <b>сів і відкрив проєкт</b>. Кожен виконаний слот = ⭐
+      (гра стоїть двічі на тиждень → до 2 зірок за гру щотижня; бонусний слот у вихідний — теж ⭐).
+      ○ = ще попереду · − = пропущено (дані, не гріх — але не двічі поспіль).
+      Внизу дня: 🍿 серіал / 🕹️ ігровий вечір — заряджання, окрема валюта, не зірки.</p>
+    <div class="week" id="week"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Цілі — результат, не години</h2>
+    <p class="desc">Один наступний рубіж на проєкт. <b>Рубіж упав = 🏆 назавжди і +100 ⭐ у скарбничку.</b>
+      Потім ставимо новий рубіж.</p>
+    <div class="goals" id="goals"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Історія тижнів</h2>
+    <p class="desc">Нічого не зникає: щонеділі додається новий тиждень, а старі лишаються тут назавжди.</p>
+    <table id="history"></table>
+  </div>
+
+  <div class="panel">
+    <h2>Правила гри</h2>
+    <ul class="rules">
+      <li><b>Спершу планка навчання (3:30), потім проєкт.</b> Якщо просідає навчання — першими ріжуться слоти, не навпаки.</li>
+      <li><b>30 хвилин — стеля обов'язку.</b> Хочеться більше — можна (стоп до 22:00, встань, поки хочеться ще).</li>
+      <li><b>Проєктний час НЕ йде в навчальний лічильник.</b> У нього своя скарбничка тут.</li>
+      <li><b>Валюти: ⭐ = створив (слот), 🏆+100⭐ = рубіж узято, 🍿/🕹️ = зарядився.</b> Серіал та ігри — легальна частина плану, не провина. Найкраща зв'язка: спочатку 30 хв СВОЄЇ гри — потім чужа.</li>
+      <li><b>Пропуск слота = дані.</b> Один — нормально. Двічі поспіль — не даємо.</li>
+    </ul>
+  </div>
+
+  <footer id="foot"></footer>
+</div>
+
+<script>
+/* ================= DATA — update at every check-in ================= */
+const PROJECTS = {
+  game:    { name:"Гра",       icon:"🎮", color:"var(--game)",
+             goal:"Готова локація (центр кімнати) — і по ній можна походити" },
+  saas:    { name:"SaaS",      icon:"☁️", color:"var(--saas)",
+             goal:"Повністю робочий проєкт для власного користування" },
+  arduino: { name:"Інкубатор", icon:"🐣", color:"var(--arduino)",
+             goal:"Повністю готовий інкубатор" },
+};
+const MILESTONE_BONUS = 100;   /* 🏆 = +100 ⭐ */
+
+/* Журнал: 1 запис на день, тижні йдуть підряд (Пн→Нд), НІЧОГО не видаляється.
+   Щонеділі додається наступний тиждень. done: null = попереду, true = ⭐, false = пропуск.
+   Бонусний слот у вихідний: постав slot + done:true в той день. */
+const LOG = [
+  /* ---- Тиждень 1: 06.07 – 12.07.2026 ---- */
+  { date:"2026-07-06", slot:"game",    done:null, min:0, series:false, gaming:false },
+  { date:"2026-07-07", slot:"saas",    done:null, min:0, series:false, gaming:false },
+  { date:"2026-07-08", slot:"arduino", done:null, min:0, series:false, gaming:false },
+  { date:"2026-07-09", slot:"game",    done:null, min:0, series:false, gaming:false },
+  { date:"2026-07-10", slot:"saas",    done:null, min:0, series:false, gaming:false },
+  { date:"2026-07-11", slot:null,      done:null, min:0, series:false, gaming:false },
+  { date:"2026-07-12", slot:null,      done:null, min:0, series:false, gaming:false },
+];
+/* Взяті рубежі: {proj:"game", date:"YYYY-MM-DD", text:"..."} — 🏆 назавжди */
+const MILESTONES_DONE = [];
+const UPDATED = "2026-07-05";
+/* =================================================================== */
+
+const DAYN = ["Пн","Вт","Ср","Чт","Пт","Сб","Нд"];
+const todayISO = new Date().toISOString().slice(0,10);
+const fmtMin = m => m>=60 ? Math.floor(m/60)+" год"+(m%60? " "+m%60+" хв":"") : m+" хв";
+const dm = iso => iso.slice(8)+"."+iso.slice(5,7);
+
+/* ---- weeks = chunks of 7 (LOG always holds whole weeks) ---- */
+const weeks=[]; for(let i=0;i<LOG.length;i+=7) weeks.push(LOG.slice(i,i+7));
+const wk = weeks[weeks.length-1];
+
+/* ---- totals ---- */
+const doneAll   = LOG.filter(e=>e.done===true);
+const slotStars = doneAll.length;
+const trophies  = MILESTONES_DONE.length;
+const totalStars= slotStars + trophies*MILESTONE_BONUS;
+const slotMin   = LOG.reduce((s,e)=>s+e.min,0);
+const seriesWk  = wk.filter(e=>e.series).length;
+const gamingWk  = wk.filter(e=>e.gaming).length;
+
+const cards = [
+  { k:"Скарбничка зірок", v:"⭐ "+totalStars,
+    note:`${slotStars} за слоти${trophies? " + "+trophies+"×🏆("+MILESTONE_BONUS+")":""}`, spark:"🏦" },
+  { k:"Час у проєктах", v: slotMin? fmtMin(slotMin) : "0 хв", note:"разом · не йде в навчання", spark:"⏱️" },
+  { k:"Серіали (тижд.)", v:seriesWk+" <small>/ 4</small>", note:"заплановане заряджання", spark:"🍿" },
+  { k:"Ігрові вечори", v:gamingWk+" <small>/ 2–3</small>", note:"субота — особливо", spark:"🕹️" },
+];
+document.getElementById("cards").innerHTML = cards.map(c=>`
+  <div class="card"><div class="spark">${c.spark}</div>
+    <div class="k">${c.k}</div><div class="v">${c.v}</div><div class="note">${c.note}</div></div>`).join("");
+
+/* ---- per-project cards: stars + time + this week ---- */
+document.getElementById("cardsProj").innerHTML = Object.entries(PROJECTS).map(([key,p])=>{
+  const mine   = LOG.filter(e=>e.slot===key);
+  const stars  = mine.filter(e=>e.done===true).length;
+  const mins   = mine.reduce((s,e)=>s+e.min,0);
+  const wkMine = wk.filter(e=>e.slot===key);
+  const wkDone = wkMine.filter(e=>e.done===true).length;
+  const tr     = MILESTONES_DONE.filter(m=>m.proj===key).length;
+  return `<div class="card pj" style="border-top-color:${p.color}">
+    <div class="spark">${p.icon}</div>
+    <div class="k">${p.name}</div>
+    <div class="row">
+      <div><b>⭐ ${stars}${tr? " 🏆".repeat(tr):""}</b><span>зірки</span></div>
+      <div><b>${mins? fmtMin(mins):"0 хв"}</b><span>час</span></div>
+      <div><b>${wkDone} / ${wkMine.length}</b><span>цей тиждень</span></div>
+    </div></div>`;
+}).join("");
+
+/* ---- current week calendar ---- */
+document.getElementById("week").innerHTML = wk.map((e,i)=>{
+  const p = e.slot ? PROJECTS[e.slot] : null;
+  let st="○", stTitle="ще попереду";
+  if(e.done===true){ st="⭐"; stTitle="виконано"+(e.min? " · "+fmtMin(e.min):""); }
+  else if(e.done===false){ st="−"; stTitle="пропущено (дані, не гріх)"; }
+  const chip = p
+    ? `<div class="chip" title="17:00 · 30 хв · ${stTitle}">
+         <span class="dot" style="background:${p.color}"></span>${p.icon} ${p.name}<span class="st">${st}</span></div>`
+    : `<div class="chip free" title="вихідний — слот за бажанням (теж ⭐)">вільно</div>`;
+  return `<div class="day${e.date===todayISO?" today":""}">
+    <div class="dh"><span class="dn">${DAYN[i]}</span><span class="dd">${dm(e.date)}</span></div>
+    ${chip}
+    <div class="rest">
+      <span class="${e.series?"on":""}" title="серіал увечері">🍿</span>
+      <span class="${e.gaming?"on":""}" title="ігровий вечір">🕹️</span>
+    </div>
+  </div>`;
+}).join("");
+
+/* ---- goal cards ---- */
+document.getElementById("goals").innerHTML = Object.entries(PROJECTS).map(([key,p])=>{
+  const tr = MILESTONES_DONE.filter(m=>m.proj===key);
+  return `<div class="goal" style="border-top-color:${p.color}">
+    <div class="gh"><span class="dot" style="background:${p.color}"></span>${p.icon} ${p.name}
+      ${tr.map(()=>"🏆").join("")}</div>
+    <div class="mile">Рубіж: ${p.goal}</div>
+    <div class="bounty">Нагорода: 🏆 +${MILESTONE_BONUS} ⭐</div>
+  </div>`;
+}).join("");
+
+/* ---- history table (all weeks, newest last; never deleted) ---- */
+const hRows = weeks.map((w,idx)=>{
+  const cur = idx===weeks.length-1;
+  const per = key => w.filter(e=>e.slot===key && e.done===true).length;
+  const stars = w.filter(e=>e.done===true).length;
+  const mins = w.reduce((s,e)=>s+e.min,0);
+  return `<tr>
+    <td class="${cur?"now":""}">Тижд. ${idx+1} · ${dm(w[0].date)}–${dm(w[6].date)}${cur?" (поточний)":""}</td>
+    <td>${per("game")||"·"}</td><td>${per("saas")||"·"}</td><td>${per("arduino")||"·"}</td>
+    <td><b>${stars? "⭐ "+stars : "·"}</b></td>
+    <td>${mins? fmtMin(mins):"·"}</td>
+    <td>${w.filter(e=>e.series).length||"·"} 🍿</td>
+    <td>${w.filter(e=>e.gaming).length||"·"} 🕹️</td>
+  </tr>`;
+}).join("");
+document.getElementById("history").innerHTML = `
+  <thead><tr><th>Тиждень</th><th>🎮</th><th>☁️</th><th>🐣</th><th>Зірки</th><th>Час</th><th>Серіали</th><th>Ігри</th></tr></thead>
+  <tbody>${hRows}</tbody>`;
+
+document.getElementById("foot").textContent =
+  `EXP-006 · старт 2026-07-06 · огляд 2026-07-19 · оновлено ${UPDATED}`;
+</script>
+</body>
+</html>

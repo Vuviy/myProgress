@@ -100,6 +100,7 @@
     <div class="eyebrow">Фаза 2 — Build</div>
     <h1>Навчальний марафон · прогрес</h1>
     <div class="sub" id="subline"></div>
+    <div class="sub" style="margin-top:6px"><a href="projects.html" style="color:var(--accent);font-weight:600;text-decoration:none;font-size:13px">🎮 Мої проєкти — друга сцена →</a></div>
   </header>
 
   <div class="goals" id="goals"></div>
@@ -221,7 +222,7 @@ const cards = [
   // { k:"Типовий день", v:fmt(median(DATA.map(d=>d.total))), note:`медіана · середнє ${fmt(avg(DATA.map(d=>d.total)))}`, spark:"📊" },
   { k:"Старт вчасно поспіль", v:streak+" дн.", note:"за столом ≤ 11:00 (Дні 8–11)", spark:"🎯" },
   { k:"Англ / Прог", v:`${fmtShort(engTotal)} <small>/</small> ${fmtShort(progTotal)}`, note:"баланс сумарного часу", spark:"⚖️" },
-  { k:"Хароші дні", v:goldDays+"", note:"днів із 5+ год · орієнтир, не норма", spark:"⭐" },
+  { k:"Ультанув", v:goldDays+"", note:"днів із 5+ год · орієнтир, не норма", spark:"⭐" },
 ];
 document.getElementById("cards").innerHTML = cards.map(c=>`
   <div class="card"><div class="spark">${c.spark}</div>
