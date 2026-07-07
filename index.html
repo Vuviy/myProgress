@@ -35,7 +35,7 @@
   .card .v{font-size:26px;font-weight:700;margin-top:8px;letter-spacing:-.01em;}
   .card .v small{font-size:14px;color:var(--muted);font-weight:600;}
   .card .note{color:var(--faint);font-size:12px;margin-top:4px;}
-  .card .spark{position:absolute;right:14px;top:16px;font-size:20px;opacity:.5;}
+  .card .spark{position:absolute;right:14px;top:16px;font-size:20px;}
   .cards-avg{grid-template-columns:repeat(2,1fr);margin:-8px 0 30px;}
   .card .mini{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;}
   .card .mini .w{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 6px 8px;text-align:center;}
@@ -147,7 +147,7 @@
     <table id="dayTable"></table>
   </div>
 
-  <footer>Дані: progress/hours-log.md · оновлено 2026-07-05 (День 27)</footer>
+  <footer>Дані: progress/hours-log.md · оновлено 2026-07-07 (День 29 — 💯 100 годин)</footer>
 </div>
 
 <div class="tip" id="tip"></div>
@@ -183,6 +183,7 @@ const DATA = [
   { day:26, date:"2026-07-04", eng:150, prog:90,  onTime:true  },
   { day:27, date:"2026-07-05", eng:140, prog:160, onTime:true  },
   { day:28, date:"2026-07-06", eng:135, prog:180, onTime:true  },
+  { day:29, date:"2026-07-07", eng:120, prog:120, onTime:true  },
 ];
 DATA.forEach(d => d.total = d.eng + d.prog);
 
@@ -215,7 +216,7 @@ const GOLD_MIN = 300;
 const goldDays = DATA.filter(d=>d.total>=GOLD_MIN).length;
 
 document.getElementById("subline").textContent =
-  `День ${nDays} · мета: стабільний старт, мінімум 3,5 год · золотий день = 5+ год · сон ≥ 8 год — захисна межа`;
+  `День ${nDays} · мета: стабільний старт, мінімум 3,5 год · ульт (ultimate) = 5+ год · сон ≥ 8 год — захисна межа`;
 
 const cards = [
   { k:"Усього годин", v:fmt(totalMin), note:`за ${nDays} днів · 30 год пройдено на День 11`, spark:"⏱️" },
