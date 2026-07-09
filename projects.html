@@ -37,7 +37,7 @@
   .card .v{font-size:26px;font-weight:700;margin-top:8px;letter-spacing:-.01em;}
   .card .v small{font-size:14px;color:var(--muted);font-weight:600;}
   .card .note{color:var(--faint);font-size:12px;margin-top:4px;}
-  .card .spark{position:absolute;right:14px;top:16px;font-size:20px;opacity:.5;}
+  .card .spark{position:absolute;right:14px;top:16px;font-size:20px;}
   .card.pj{border-top:3px solid var(--line);}
   .card .row{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;}
   .card .row div b{font-size:19px;font-weight:700;display:block;}
@@ -157,14 +157,14 @@ const LOG = [
   { date:"2026-07-06", slot:"game",    done:true, min:75, series:true, gaming:false },
   { date:"2026-07-07", slot:"saas",    done:true, min:40, series:true, gaming:false },
   { date:"2026-07-08", slot:"arduino", done:true, min:30, series:false, gaming:false },
-  { date:"2026-07-09", slot:"game",    done:null, min:0, series:false, gaming:false },
+  { date:"2026-07-09", slot:"game",    done:true, min:120, series:false, gaming:false },
   { date:"2026-07-10", slot:"saas",    done:null, min:0, series:false, gaming:false },
   { date:"2026-07-11", slot:null,      done:null, min:0, series:false, gaming:false },
   { date:"2026-07-12", slot:null,      done:null, min:0, series:false, gaming:false },
 ];
 /* Взяті рубежі: {proj:"game", date:"YYYY-MM-DD", text:"..."} — 🏆 назавжди */
 const MILESTONES_DONE = [];
-const UPDATED = "2026-07-08";
+const UPDATED = "2026-07-09";
 /* =================================================================== */
 
 const DAYN = ["Пн","Вт","Ср","Чт","Пт","Сб","Нд"];
