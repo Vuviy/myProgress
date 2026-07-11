@@ -95,7 +95,8 @@
     <div class="eyebrow">Друга сцена · EXP-006</div>
     <h1>Мої проєкти</h1>
     <div class="sub">Гра · SaaS · Інкубатор — 30 хвилин о 17:00, після закритої планки навчання.
-      &nbsp;<a class="xlink" href="index.html">← навчальний дашборд</a></div>
+      &nbsp;<a class="xlink" href="index.html">← навчальний дашборд</a>
+      &nbsp;·&nbsp;<a class="xlink" href="game.html">🎮 щоденник гри →</a></div>
   </header>
 
   <div class="cards" id="cards"></div>
@@ -158,13 +159,13 @@ const LOG = [
   { date:"2026-07-07", slot:"saas",    done:true, min:40, series:true, gaming:false },
   { date:"2026-07-08", slot:"arduino", done:true, min:30, series:false, gaming:false },
   { date:"2026-07-09", slot:"game",    done:true, min:120, series:false, gaming:false },
-  { date:"2026-07-10", slot:"saas",    done:null, min:0, series:false, gaming:false },
-  { date:"2026-07-11", slot:null,      done:null, min:0, series:false, gaming:false },
+  { date:"2026-07-10", slot:"saas",    done:false, min:0, series:false, gaming:true },
+  { date:"2026-07-11", slot:"game",    done:true, min:120, series:false, gaming:false },
   { date:"2026-07-12", slot:null,      done:null, min:0, series:false, gaming:false },
 ];
 /* Взяті рубежі: {proj:"game", date:"YYYY-MM-DD", text:"..."} — 🏆 назавжди */
 const MILESTONES_DONE = [];
-const UPDATED = "2026-07-09";
+const UPDATED = "2026-07-11";
 /* =================================================================== */
 
 const DAYN = ["Пн","Вт","Ср","Чт","Пт","Сб","Нд"];
@@ -204,14 +205,18 @@ document.getElementById("cardsProj").innerHTML = Object.entries(PROJECTS).map(([
   const wkMine = wk.filter(e=>e.slot===key);
   const wkDone = wkMine.filter(e=>e.done===true).length;
   const tr     = MILESTONES_DONE.filter(m=>m.proj===key).length;
-  return `<div class="card pj" style="border-top-color:${p.color}">
+  const link   = key==="game" ? "game.html" : null;
+  const inner  = `
     <div class="spark">${p.icon}</div>
-    <div class="k">${p.name}</div>
+    <div class="k">${p.name}${link? ' <span style="color:var(--faint);font-weight:600">· журнал →</span>':''}</div>
     <div class="row">
       <div><b>⭐ ${stars}${tr? " 🏆".repeat(tr):""}</b><span>зірки</span></div>
       <div><b>${mins? fmtMin(mins):"0 хв"}</b><span>час</span></div>
       <div><b>${wkDone} / ${wkMine.length}</b><span>цей тиждень</span></div>
-    </div></div>`;
+    </div>`;
+  return link
+    ? `<a class="card pj" href="${link}" style="border-top-color:${p.color};text-decoration:none;color:inherit;cursor:pointer">${inner}</a>`
+    : `<div class="card pj" style="border-top-color:${p.color}">${inner}</div>`;
 }).join("");
 
 /* ---- current week calendar ---- */
